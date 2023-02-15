@@ -7,15 +7,20 @@ public class GraphCounter {
     public int numberOfGraphs = 1;
 
     public void run() {
+        numberOfGraphs = 1;
         String input = getInput();
-        List<Integer> vertices = getVertices(input);
-        if (vertices.stream().distinct().toList().size() == vertices.size()) {
-            numberOfGraphs = vertices.size() / 2;
-            return;
+        if (input.charAt(0) == '0') {
+            numberOfGraphs = 0;
+        } else {
+            List<Integer> vertices = getVertices(input);
+            if (vertices.stream().distinct().toList().size() == vertices.size()) {
+                numberOfGraphs = vertices.size() / 2;
+                return;
+            }
+            List<List<Integer>> pairs = getPairs(vertices);
+            Set<Integer> firstGraph = new HashSet<>(pairs.get(0));
+            countGraphs(firstGraph, pairs);
         }
-        List<List<Integer>> pairs = getPairs(vertices);
-        Set<Integer> firstGraph = new HashSet<>(pairs.get(0));
-        countGraphs(firstGraph, pairs);
         System.out.println(numberOfGraphs);
     }
 
