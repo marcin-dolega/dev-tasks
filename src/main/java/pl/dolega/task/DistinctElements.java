@@ -22,7 +22,6 @@ public class DistinctElements {
                 System.out.println("Invalid input, try again:");
             }
         }
-//        scanner.close();
         return input;
     }
 
