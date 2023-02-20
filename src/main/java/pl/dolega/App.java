@@ -2,6 +2,7 @@ package pl.dolega;
 
 import pl.dolega.task.DistinctElements;
 import pl.dolega.task.GraphCounter;
+import pl.dolega.task.GraphCounterRecursion;
 import pl.dolega.task.Pairs;
 
 import java.util.Scanner;

@@ -4,55 +4,64 @@ import java.util.*;
 
 public class GraphCounter {
 
-    public int numberOfGraphs = 1;
+    private List<List<Integer>> pairs = new LinkedList<>();
+    private int graphCounter;
 
     public void run() {
-        numberOfGraphs = 1;
+        graphCounter = 0;
         String input = getInput();
-        if (input.charAt(0) == '0') {
-            numberOfGraphs = 0;
+        int numberOfPairs = getNumberOfPairs(input);
+        if (numberOfPairs == 0) {
+            graphCounter = 0;
+        } else if (getVertices(input).stream().distinct().toList().size() == numberOfPairs * 2) {
+            graphCounter = numberOfPairs;
         } else {
-            List<Integer> vertices = getVertices(input);
-            if (vertices.stream().distinct().toList().size() == vertices.size()) {
-                numberOfGraphs = vertices.size() / 2;
-                return;
-            }
-            List<List<Integer>> pairs = getPairs(vertices);
-            Set<Integer> firstGraph = new HashSet<>(pairs.get(0));
-            countGraphs(firstGraph, pairs);
+            pairs = getPairs(getVertices(input));
+            countGraphs();
         }
-        System.out.println(numberOfGraphs);
+        System.out.println(graphCounter);
     }
 
-    public void countGraphs(Set<Integer> graph, List<List<Integer>> startingPairs) {
-
-        if (startingPairs.size() == 0) {
-            return;
-        }
-
-        List<List<Integer>> remainingPairs = new ArrayList<>();
-
-
-        for (int i = 0; i < startingPairs.size(); i++) {
-            List<Integer> pair = startingPairs.get(i);
-            if (graph.stream().anyMatch(n -> Objects.equals(n, pair.get(0)) || Objects.equals(n, pair.get(1)))) {
-                graph.add(pair.get(0));
-                graph.add(pair.get(1));
-            } else {
-                remainingPairs.add(startingPairs.get(i));
-            }
-        }
-
-        if (remainingPairs.equals(startingPairs)) {
-            numberOfGraphs++;
-            countGraphs(new HashSet<>(startingPairs.get(0)), remainingPairs);
-        } else {
-            countGraphs(graph, remainingPairs);
-        }
-
+    private void countGraphs() {
+        do {
+            graphCounter++;
+            pairs = getRemainingPairs(pairs);
+        } while (pairs.size() != 0);
     }
 
-    public List<List<Integer>> getPairs(List<Integer> vertices) {
+    private List<List<Integer>> getRemainingPairs(List<List<Integer>> pairs) {
+
+        List<List<Integer>> remainingPairs;
+
+        Set<Integer> graph = new HashSet<>();
+        graph.add(pairs.get(0).get(0));
+        graph.add(pairs.get(0).get(1));
+        pairs.remove(0);
+
+        int j = pairs.size();
+
+        int matchingPairs;
+
+        do {
+            matchingPairs = 0;
+            for (int i = 0; i < j; i++) {
+                int a = pairs.get(i).get(0);
+                int b = pairs.get(i).get(1);
+                if (graph.contains(a) || graph.contains(b)) {
+                    matchingPairs++;
+                    graph.add(a);
+                    graph.add(b);
+                    pairs.remove(i);
+                    i--;
+                    j--;
+                }
+            }
+            remainingPairs = pairs;
+        } while (matchingPairs != 0);
+        return remainingPairs;
+    }
+
+    private List<List<Integer>> getPairs(List<Integer> vertices) {
         Set<List<Integer>> pairsSet = new HashSet<>();
         List<List<Integer>> pairsList = new ArrayList<>();
         for (int i = 0; i < vertices.size(); i = i + 2) {
@@ -64,12 +73,16 @@ public class GraphCounter {
         return pairsList;
     }
 
-    public List<Integer> getVertices(String input) {
+    private List<Integer> getVertices(String input) {
         List<Integer> vertices = Arrays.stream(input.split(" ")).map(Integer::parseInt).toList();
         return vertices.subList(1, vertices.size());
     }
 
-    public String getInput() {
+    private int getNumberOfPairs(String input) {
+        return Integer.parseInt(String.valueOf(input.charAt(0)));
+    }
+
+    private String getInput() {
         System.out.println("Enter integers:");
         Scanner scanner = new Scanner(System.in);
         StringBuilder stringBuilder = new StringBuilder();
